@@ -1,32 +1,29 @@
-# Exploratory Data Analysis - Assignment 2 - Q. #4
+dataFile <- "./data/household_power_consumption.txt"
+data <- read.table(dataFile, header=TRUE, sep=";", stringsAsFactors=FALSE, dec=".")
+subSetData <- data[data$Date %in% c("1/2/2007","2/2/2007") ,]
+
+#str(subSetData)
+datetime <- strptime(paste(subSetData$Date, subSetData$Time, sep=" "), "%d/%m/%Y %H:%M:%S") 
+globalActivePower <- as.numeric(subSetData$Global_active_power)
+globalReactivePower <- as.numeric(subSetData$Global_reactive_power)
+voltage <- as.numeric(subSetData$Voltage)
+subMetering1 <- as.numeric(subSetData$Sub_metering_1)
+subMetering2 <- as.numeric(subSetData$Sub_metering_2)
+subMetering3 <- as.numeric(subSetData$Sub_metering_3)
 
 
-# Load ggplot2 library
-require(ggplot2)
+png("plot4.png", width=480, height=480)
+par(mfrow = c(2, 2)) 
 
-# Loading provided datasets - loading from local machine
-NEI <- readRDS("~/Exploratory_Data_Analysis/Assignment_2/summarySCC_PM25.rds")
-SCC <- readRDS("~/Exploratory_Data_Analysis/Assignment_2/Source_Classification_Code.rds")
+plot(datetime, globalActivePower, type="l", xlab="", ylab="Global Active Power", cex=0.2)
 
-# Coal combustion related sources
-SCC.coal = SCC[grepl("coal", SCC$Short.Name, ignore.case=TRUE),]
+plot(datetime, voltage, type="l", xlab="datetime", ylab="Voltage")
 
-# Merge two data sets
-merge <- merge(x=NEI, y=SCC.coal, by='SCC')
-merge.sum <- aggregate(merge[, 'Emissions'], by=list(merge$year), sum)
-colnames(merge.sum) <- c('Year', 'Emissions')
+plot(datetime, subMetering1, type="l", ylab="Energy Submetering", xlab="")
+lines(datetime, subMetering2, type="l", col="red")
+lines(datetime, subMetering3, type="l", col="blue")
+legend("topright", c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"), lty=, lwd=2.5, col=c("black", "red", "blue"), bty="o")
 
-# Across the United States, how have emissions from coal combustion-related sources 
-# changed from 1999-2008?
-
-# Generate the graph in the same directory as the source code
-png(filename='~/Exploratory_Data_Analysis/Assignment_2/plot4.png')
-
-ggplot(data=merge.sum, aes(x=Year, y=Emissions/1000)) + 
-    geom_line(aes(group=1, col=Emissions)) + geom_point(aes(size=2, col=Emissions)) + 
-    ggtitle(expression('Total Emissions of PM'[2.5])) + 
-    ylab(expression(paste('PM', ''[2.5], ' in kilotons'))) + 
-    geom_text(aes(label=round(Emissions/1000,digits=2), size=2, hjust=1.5, vjust=1.5)) + 
-    theme(legend.position='none') + scale_colour_gradient(low='black', high='red')
+plot(datetime, globalReactivePower, type="l", xlab="datetime", ylab="Global_reactive_power")
 
 dev.off()

@@ -1,32 +1,17 @@
-# Exploratory Data Analysis - Assignment 2 - Q. #3
+dataFile <- "./data/household_power_consumption.txt"
+data <- read.table(dataFile, header=TRUE, sep=";", stringsAsFactors=FALSE, dec=".")
+subSetData <- data[data$Date %in% c("1/2/2007","2/2/2007") ,]
 
+#str(subSetData)
+datetime <- strptime(paste(subSetData$Date, subSetData$Time, sep=" "), "%d/%m/%Y %H:%M:%S") 
+globalActivePower <- as.numeric(subSetData$Global_active_power)
+subMetering1 <- as.numeric(subSetData$Sub_metering_1)
+subMetering2 <- as.numeric(subSetData$Sub_metering_2)
+subMetering3 <- as.numeric(subSetData$Sub_metering_3)
 
-# Load ggplot2 library
-require(ggplot2)
-
-# Loading provided datasets - loading from local machine
-NEI <- readRDS("~/Exploratory_Data_Analysis/Assignment_2/summarySCC_PM25.rds")
-SCC <- readRDS("~/Exploratory_Data_Analysis/Assignment_2/Source_Classification_Code.rds")
-
-# Sampling
-NEI_sampling <- NEI[sample(nrow(NEI), size=5000, replace=F), ]
-
-# Baltimore City, Maryland == fips
-MD <- subset(NEI, fips == 24510)
-MD$year <- factor(MD$year, levels=c('1999', '2002', '2005', '2008'))
-
-# Of the four types of sources indicated by the type (point, nonpoint, onroad, nonroad) variable, 
-# which of these four sources have seen decreases in emissions from 1999–2008 for Baltimore City? 
-# Which have seen increases in emissions from 1999–2008? 
-# Use the ggplot2 plotting system to make a plot answer this question.
-
-# Generate the graph in the same directory as the source code
-png(filename='~/Exploratory_Data_Analysis/Assignment_2/plot3.png', width=800, height=500, units='px')
-
-ggplot(data=MD, aes(x=year, y=log(Emissions))) + facet_grid(. ~ type) + guides(fill=F) +
-    geom_boxplot(aes(fill=type)) + stat_boxplot(geom ='errorbar') +
-    ylab(expression(paste('Log', ' of PM'[2.5], ' Emissions'))) + xlab('Year') + 
-    ggtitle('Emissions per Type in Baltimore City, Maryland') +
-    geom_jitter(alpha=0.10)
-
+png("plot3.png", width=480, height=480)
+plot(datetime, subMetering1, type="l", ylab="Energy Submetering", xlab="")
+lines(datetime, subMetering2, type="l", col="red")
+lines(datetime, subMetering3, type="l", col="blue")
+legend("topright", c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"), lty=1, lwd=2.5, col=c("black", "red", "blue"))
 dev.off()

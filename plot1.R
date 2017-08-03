@@ -1,26 +1,9 @@
-# Exploratory Data Analysis - Assignment 2 - Q. #1
+dataFile <- "./data/household_power_consumption.txt"
+data <- read.table(dataFile, header=TRUE, sep=";", stringsAsFactors=FALSE, dec=".")
+subSetData <- data[data$Date %in% c("1/2/2007","2/2/2007") ,]
 
-
-# Loading provided datasets - loading from local machine
-NEI <- readRDS("~/Exploratory_Data_Analysis/Assignment_2/summarySCC_PM25.rds")
-SCC <- readRDS("~/Exploratory_Data_Analysis/Assignment_2/Source_Classification_Code.rds")
-
-# Sampling
-NEI_sampling <- NEI[sample(nrow(NEI), size=2000, replace=F), ]
-
-# Aggregate
-Emissions <- aggregate(NEI[, 'Emissions'], by=list(NEI$year), FUN=sum)
-Emissions$PM <- round(Emissions[,2]/1000,2)
-
-# Have total emissions from PM2.5 decreased in the United States from 1999 to 2008? 
-# Using the base plotting system, make a plot showing the total PM2.5 emission from all sources 
-# for each of the years 1999, 2002, 2005, and 2008.
-
-# Generate the graph in the same directory as the source code
-png(filename='~/Exploratory_Data_Analysis/Assignment_2/plot1.png')
-
-barplot(Emissions$PM, names.arg=Emissions$Group.1, 
-        main=expression('Total Emission of PM'[2.5]),
-        xlab='Year', ylab=expression(paste('PM', ''[2.5], ' in Kilotons')))
-
+#str(subSetData)
+globalActivePower <- as.numeric(subSetData$Global_active_power)
+png("plot1.png", width=480, height=480)
+hist(globalActivePower, col="red", main="Global Active Power", xlab="Global Active Power (kilowatts)")
 dev.off()

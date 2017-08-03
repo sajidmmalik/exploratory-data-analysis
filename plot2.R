@@ -1,24 +1,10 @@
-# Exploratory Data Analysis - Assignment 2 - Q. #2
+dataFile <- "./data/household_power_consumption.txt"
+data <- read.table(dataFile, header=TRUE, sep=";", stringsAsFactors=FALSE, dec=".")
+subSetData <- data[data$Date %in% c("1/2/2007","2/2/2007") ,]
 
-
-# Loading provided datasets - loading from local machine
-NEI <- readRDS("~/Exploratory_Data_Analysis/Assignment_2/summarySCC_PM25.rds")
-SCC <- readRDS("~/Exploratory_Data_Analysis/Assignment_2/Source_Classification_Code.rds")
-
-# Sampling
-NEI_sampling <- NEI[sample(nrow(NEI), size=5000, replace=F), ]
-
-# Subset data and append two years in one data frame
-MD <- subset(NEI, fips=='24510')
-
-# Have total emissions from PM2.5 decreased in the Baltimore City, Maryland (fips == "24510") 
-# from 1999 to 2008? Use the base plotting system to make a plot answering this question.
-
-# Generate the graph in the same directory as the source code
-png(filename='~/Exploratory_Data_Analysis/Assignment_2/plot2.png')
-
-barplot(tapply(X=MD$Emissions, INDEX=MD$year, FUN=sum), 
-        main='Total Emission in Baltimore City, MD', 
-        xlab='Year', ylab=expression('PM'[2.5]))
-
+#str(subSetData)
+datetime <- strptime(paste(subSetData$Date, subSetData$Time, sep=" "), "%d/%m/%Y %H:%M:%S") 
+globalActivePower <- as.numeric(subSetData$Global_active_power)
+png("plot2.png", width=480, height=480)
+plot(datetime, globalActivePower, type="l", xlab="", ylab="Global Active Power (kilowatts)")
 dev.off()
